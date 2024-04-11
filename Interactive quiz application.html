@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Quiz</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to right top, #ff3366, #ff3399, #ff33cc, #ff33ff, #ff33ff, #cc33ff, #9933ff, #6633ff, #6633ff, #3333ff, #0033ff, #0033ff);
+    color: black;
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    margin: 0;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: #fff;
+    transition: background-color 0.3s;
+  }
+
+  .btn:hover {
+    background-color: #45a049;
+  }
+
+  .question {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .option-button {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+  }
+
+  .option-button:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #000;
+    border-color: #000;
+  }
+
+  .result {
+    margin-top: 30px;
+  }
+
+  .result h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+
+  .result-info {
+    margin-bottom: 20px;
+    text-align: left;
+  }
+
+  .result-info p {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .result-score {
+    font-size: 24px;
+    font-weight: bold;
+    color: #FF6B6B;
+  }
+
+  .wrong-answer {
+    color: #FF6B6B;
+    font-weight: bold;
+  }
+
+  .correct-option {
+    color: #4CAF50;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <div class="container" id="welcomePage">
+    <div class="header">
+      <h1>Welcome to the Quiz!</h1>
+    </div>
+    <p class="question">Are you ready to test your knowledge?</p>
+    <button class="btn" onclick="showLoginPage()">Start Quiz</button>
+  </div>
+
+  <div class="container" id="loginPage" style="display: none;">
+    <div class="header">
+      <h1>Login</h1>
+    </div>
+    <input type="text" placeholder="Enter your name" id="username">
+    <button class="btn" onclick="startQuiz()">Start Quiz</button>
+  </div>
+
+  <div class="container" id="quizPage" style="display: none;">
+    <div class="header">
+      <h1>Quiz</h1>
+    </div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <button class="btn" onclick="nextQuestion()">Next</button>
+  </div>
+
+  <div class="container result" id="resultPage" style="display: none;">
+    <h2>Quiz Result</h2>
+    <div class="result-info" id="resultInfo">
+      <p>Your score: <span class="result-score" id="score"></span></p>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+    { 
+      question: "JavaScript is a programming language.",
+      options: ["True", "False"],
+      answer: "True" 
+    },
+    { 
+      question: "HTML stands for Hyper Text Markup Language.",
+      options: ["True", "False"],
+      answer: "True" 
+    },
+    { 
+      question: "CSS stands for Computer Style Sheets.",
+      options: ["True", "False"],
+      answer: "False" 
+    },
+    { 
+      question: "What does CSS stand for?",
+      options: ["Cascading Style Sheets", "Computer Style Sheets", "Creative Style Sheets"],
+      answer: "Cascading Style Sheets" 
+    },
+    { 
+      question: "Which of the following is not a programming language?",
+      options: ["HTML", "CSS", "JavaScript"],
+      answer: "HTML" 
+    },
+    { 
+      question: "Which tag is used to create a hyperlink in HTML?",
+      options: ["<a>", "<p>", "<h1>"],
+      answer: "<a>" 
+    },
+    { 
+      question: "What is the correct way to comment out multiple lines in JavaScript?",
+      options: ["// This is a comment", "/* This is a comment */", "<!-- This is a comment -->"],
+      answer: "/* This is a comment */" 
+    },
+    { 
+      question: "What is the output of 2 + 2 * 3?",
+      options: ["4", "8", "10"],
+      answer: "8" 
+    },
+    { 
+      question: "What does 'NaN' stand for in JavaScript?",
+      options: ["Not a Number", "New Alphabet Number", "Number and Null"],
+      answer: "Not a Number" 
+    },
+    { 
+      question: "What does 'WWW' stand for in a website browser?",
+      options: ["World Wide Web", "Web World Wide", "Wide Web World"],
+      answer: "World Wide Web" 
+    }
+  ];
+
+  let currentQuestionIndex = 0;
+  let score = 0;
+  let wrongAnswers = [];
+
+  function showLoginPage() {
+    document.getElementById("welcomePage").style.display = "none";
+    document.getElementById("loginPage").style.display = "block";
+  }
+
+  function startQuiz() {
+    const username = document.getElementById("username").value;
+    if (username.trim() === "") {
+      alert("Please enter your name.");
+      return;
+    }
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("quizPage").style.display = "block";
+    shuffleQuestions();
+    showQuestion();
+  }
+
+  function shuffleQuestions() {
+    for (let i = questions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [questions[i], questions[j]] = [questions[j], questions[i]];
+    }
+  }
+
+  function showQuestion() {
+    if (currentQuestionIndex < questions.length) {
+      const currentQuestion = questions[currentQuestionIndex];
+      document.getElementById("question").textContent = currentQuestion.question;
+      document.getElementById("options").innerHTML = "";
+      currentQuestion.options.forEach(option => {
+        const button = document.createElement("button");
+        button.textContent = option;
+        button.className = "option-button";
+        button.onclick = () => checkAnswer(option);
+        document.getElementById("options").appendChild(button);
+      });
+    } else {
+      showResult();
+    }
+  }
+
+  function checkAnswer(userAnswer) {
+    const correctAnswer = questions[currentQuestionIndex].answer;
+    if (userAnswer === correctAnswer) {
+      score++;
+    } else {
+      wrongAnswers.push({ question: questions[currentQuestionIndex].question, correctAnswer });
+    }
+    currentQuestionIndex++;
+    showQuestion();
+  }
+
+  function showResult() {
+    document.getElementById("quizPage").style.display = "none";
+    document.getElementById("resultPage").style.display = "block";
+    document.getElementById("score").textContent = `${score} out of ${questions.length}`;
+    if (wrongAnswers.length > 0) {
+      const resultInfo = document.getElementById("resultInfo");
+      wrongAnswers.forEach(item => {
+        const p = document.createElement("p");
+        p.innerHTML = `<span class="wrong-answer">${item.question}</span> - Correct option: <span class="correct-option">${item.correctAnswer}</span>`;
+        resultInfo.appendChild(p);
+      });
+    }
+  }
+  </script>
+</body>
+</html>
