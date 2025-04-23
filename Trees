@@ -1,0 +1,109 @@
+package trees;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Heightoftrees {
+    static class Node {
+        int data;
+        Node left, right;
+
+        public Node(int item) {
+            data = item;
+            left = right = null;
+        }
+    }
+
+    static class BinaryTree {
+        Node root;
+
+        public int findHeight(Node node) {
+            if (node == null) return -1;
+            return 1 + Math.max(findHeight(node.left), findHeight(node.right));
+        }
+
+        public int countNodes(Node node) {
+            return node == null ? 0 : 1 + countNodes(node.left) + countNodes(node.right);
+        }
+
+        public boolean searchValue(Node node, int target) {
+            if (node == null) return false;
+            return node.data == target || 
+                   searchValue(node.left, target) || 
+                   searchValue(node.right, target);
+        }
+
+        public int countLeafNodes(Node node) {
+            if (node == null) return 0;
+            if (node.left == null && node.right == null) return 1;
+            return countLeafNodes(node.left) + countLeafNodes(node.right);
+        }
+
+        public int sumAllNodes(Node node) {
+            return node == null ? 0 : node.data + sumAllNodes(node.left) + sumAllNodes(node.right);
+        }
+
+        public void printNodesAtLevel(Node root, int targetLevel) {
+            if (root == null) return;
+            
+            Queue<Node> queue = new LinkedList<>();
+            queue.add(root);
+            int currentLevel = 1;
+            
+            while (!queue.isEmpty()) {
+                int levelSize = queue.size();
+                if (currentLevel == targetLevel) {
+                    queue.forEach(node -> System.out.print(node.data + " "));
+                    return;
+                }
+                for (int i = 0; i < levelSize; i++) {
+                    Node temp = queue.poll();
+                    if (temp.left != null) queue.add(temp.left);
+                    if (temp.right != null) queue.add(temp.right);
+                }
+                currentLevel++;
+            }
+            System.out.println("Level not found");
+        }
+
+        public Node insertInBST(Node node, int data) {
+            if (node == null) return new Node(data);
+            if (data < node.data) {
+                node.left = insertInBST(node.left, data);
+            } else if (data > node.data) {
+                node.right = insertInBST(node.right, data);
+            }
+            return node;
+        }
+    }
+
+    public static void main(String[] args) {
+        BinaryTree tree = new BinaryTree();
+        
+        // Create sample tree
+        tree.root = new Node(10);
+        tree.root.left = new Node(5);
+        tree.root.right = new Node(15);
+        tree.root.left.left = new Node(3);
+        tree.root.left.right = new Node(7);
+        tree.root.right.right = new Node(18);
+
+        // Test operations
+        System.out.println("Tree height: " + tree.findHeight(tree.root));
+        System.out.println("Total nodes: " + tree.countNodes(tree.root));
+        System.out.println("Search 7: " + tree.searchValue(tree.root, 7));
+        System.out.println("Leaf nodes: " + tree.countLeafNodes(tree.root));
+        System.out.println("Sum of nodes: " + tree.sumAllNodes(tree.root));
+        System.out.print("Nodes at level 3: ");
+        tree.printNodesAtLevel(tree.root, 3);
+        
+        // BST insertion
+        Node bstRoot = null;
+        BinaryTree bst = new BinaryTree();
+        bstRoot = bst.insertInBST(bstRoot, 50);
+        bst.insertInBST(bstRoot, 30);
+        bst.insertInBST(bstRoot, 20);
+        bst.insertInBST(bstRoot, 40);
+        bst.insertInBST(bstRoot, 70);
+    }
+}
